@@ -4,8 +4,10 @@
 	"description": "A template project for Phaser3 using Parceljs",
 	"scripts": {
 		"start": "parcel src/index.html -p 8000",
-		"build": "parcel build src/index.html --out-dir dist",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"build": "parcel build src/index.html --out-dir dist --public-url ./",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"deploy": "gh-pages -d dist",
+		"bnd": "npm run build && npm run deploy"
 	},
 	"author": "supertommy",
 	"license": "MIT",
@@ -15,13 +17,20 @@
 	},
 	"homepage": "https://github.com/ourcade/phaser3-parcel-template",
 	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^2.29.0",
+		"@typescript-eslint/parser": "^2.29.0",
+		"cssnano": "^4.1.10",
 		"eslint": "^6.8.0",
 		"minimist": ">=1.2.2",
 		"parcel-plugin-clean-easy": "^1.0.2",
-		"parcel-plugin-static-files-copy": "^2.2.1"
+		"parcel-plugin-static-files-copy": "^2.2.1",
+		"typescript": "^3.8.3"
 	},
 	"dependencies": {
-		"phaser": "^3.23.0"
+		"extern": "^1.0.0",
+		"gsap": "^3.2.6",
+		"phaser": "^3.23.0",
+		"phaser3-rex-plugins": "^1.1.14"
 	},
 	"parcelCleanPaths": [
 		"dist"
