@@ -6,7 +6,6 @@ export default class BaseScene extends Phaser.Scene
     protected aGrid ?: AlignGrid;
     protected timeout = .4 * 1000;
     protected cursorKeys ?: Phaser.Types.Input.Keyboard.CursorKeys;
-    private debug = true;
 
     create(){
         this.cursorKeys = this.input.keyboard.createCursorKeys();
@@ -27,7 +26,7 @@ export default class BaseScene extends Phaser.Scene
             cols: 11,
             rows: 11 
         });
-        if(this.debug){
+        if(this.game.debug){
             this.aGrid?.showNumbers();
         }
     }

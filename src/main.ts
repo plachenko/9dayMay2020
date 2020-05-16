@@ -1,11 +1,15 @@
 import Phaser from 'phaser'
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
 
+import {
+	BootScene,
+	TitleScreen,
+	MainGame,
+	GameOver,
+	UI
+} from './scenes';
+
 // import HelloWorldScene from './scenes/TitleScreen'
-import TitleScreen from './scenes/TitleScreen'
-import Game from './scenes/Game'
-import GameOver from './scenes/GameOver'
-import UI from '~/scenes/UI';
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,
@@ -23,11 +27,15 @@ const config: Phaser.Types.Core.GameConfig = {
 		}
 	},
 	scene: [
+		BootScene,
 		TitleScreen, 
-		Game, 
+		MainGame, 
 		GameOver,
 		UI
 	]
 }
 
-export default new Phaser.Game(config)
+const game = new Phaser.Game(config);
+game.debug = true;
+
+export default game;

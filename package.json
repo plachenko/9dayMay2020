@@ -29,6 +29,7 @@
 	"dependencies": {
 		"extern": "^1.0.0",
 		"gsap": "^3.2.6",
+		"moment": "^2.25.3",
 		"phaser": "^3.23.0",
 		"phaser3-rex-plugins": "^1.1.14"
 	},

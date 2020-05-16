@@ -12,10 +12,6 @@ export default class TitleScreen extends BaseScene
 		super('title')
 	}
 
-	preload()
-    {
-    }
-
     create()
     {
         super.create();
