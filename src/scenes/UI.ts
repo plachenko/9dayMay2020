@@ -12,7 +12,6 @@ export default class UI extends BaseScene{
 
     constructor(){
         super('ui');
-        console.log(Game);
     }
 
     preload()

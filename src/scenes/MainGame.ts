@@ -1,6 +1,7 @@
 import Phaser, { Game } from 'phaser'
 import gsap from 'gsap'
 import BaseScene from '~/BaseScene';
+import Character from '~/intern/Character';
 
 export default class MainGame extends BaseScene
 {
@@ -14,58 +15,70 @@ export default class MainGame extends BaseScene
 	constructor()
 	{
 		super('game')
-	}
+    }
 
     create()
     {
         super.create();
-
-        // this.scene.add('ui');
-        
-        const group = this.add.group();
         this.scene.run('ui');
-        this.scene.get('ui').events.on('timeUp', ()=>{
-            // this.changeScene('game-over');
+        this.physics.world.setFPS(480);
+
+        let mMove = true;
+
+        const particles = this.add.particles('red');
+
+        const emitter = particles.createEmitter({
+            speed: 100,
+            scale: { start: 1, end: 0 },
+            blendMode: 'ADD'
         });
-        const ground = this.aGrid.placeBetween(77, 109);
-        this.add.rectangle(
-            ground.x, 
-            ground.y, 
-            ground.w, 
-            ground.h, 
-            0x00FF00).setOrigin(0);
-        this.ground = ground;
 
-        const ballGeo: Phaser.GameObjects.Arc = this.add.circle(0, 0, 10, 0xffffff);
-            this.physics.add.existing(ballGeo);
-            this.ball = ballGeo;
+        const paddle: Phaser.GameObjects.Rectangle = this.add.rectangle(0, 400, 100, 20, 0xFF0000);
+        this.aGrid.placeAtIndex(104, paddle);
+        this.physics.add.existing(paddle, true);
 
-        group.add(ballGeo);
+        const ninja = new Character(this);
+        this.ball = ninja;
+        this.aGrid.placeAtIndex(5, ninja);
 
-        const player = this.add.rectangle(0, 0, 30, 60, 0xFF0000).setOrigin(.5, 0);
-            this.aGrid.placeAtIndex(this.position, player);
-            gsap.from(player, 1.2, {x: -40, delay: .8, onComplete:()=>{this.canMove = true}})
+        emitter.startFollow(ninja);
 
-            this.player = player;
-
-        group.add(player);
-
-        const ball = ballGeo.body as Phaser.Physics.Arcade.Body;
-            ball.setCircle(10);
-            ball.setBounce(.9, .9);
-            ball.allowGravity = false;
-            ball.setCollideWorldBounds(true);
-
+        this.physics.add.collider(paddle, ninja, this.handleBallHit, undefined, this);
+        this.physics.world.on('worldbounds', this.handleWorldCollide, this);
         
-        this.input.keyboard.on('keydown-RIGHT', () => {
-            this.position++;
-            const pos = this.aGrid.getIndexPos(this.position);
-            gsap.to(group, {x: pos.x})
+        this.input.on('pointerup', (pointer)=> {
+            if(this.input.mouse.locked){
+                this.physics.world.timeScale = 1;
+                mMove = true;
+            }
         });
 
-        this.input.keyboard.on('keydown-SPACE', () => {
-            ball.setVelocity(190, -200);
+        this.input.on('pointerdown', (pointer)=> {
+            this.input.mouse.requestPointerLock();
+            if(this.input.mouse.locked){
+                this.physics.world.timeScale = 20;
+                mMove = false;
+            }
         });
+
+        this.input.on('pointermove', (pointer) => {
+            if(this.input.mouse.locked){
+                if(mMove == true) {
+                    if(paddle.x > 0){
+                        paddle.x += pointer.movementX;
+                    } else {
+                        paddle.x = 0;
+                    }
+
+                    if(paddle.x <= this.game.config.width - paddle.width){
+                        paddle.x += pointer.movementX;
+                    } else {
+                        paddle.x = this.game.config.width - paddle.width;
+                    }
+                }
+                paddle.body.updateFromGameObject();
+            }
+        })
     }
 
     update()
@@ -73,6 +86,23 @@ export default class MainGame extends BaseScene
         if(this.canMove){
             this.processPlayerInput();
         }
+    }
+
+    handleWorldCollide(body, up, down, left, right){
+        if(down){
+            console.log(body);
+
+        }
+    }
+
+    handleBallHit(paddle, ball){
+        const body = this.ball.body as Phaser.Physics.Arcade.Body;
+        const vel = body.velocity;
+
+        vel.x = 900.1;
+        vel.y *= 1.1;
+
+        body.setVelocity(vel.x, vel.y);
     }
 
     processPlayerInput()
