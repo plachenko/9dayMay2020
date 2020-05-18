@@ -6,7 +6,7 @@ import Paddle from '~/intern/Paddle';
 
 export default class MainGame extends BaseScene
 {
-    private UI: Phaser.Scene;
+    private UI: any;
     private dim: any = {w: 0, h: 0};
     private player: Character;
     private paddle: Paddle;
@@ -103,13 +103,13 @@ export default class MainGame extends BaseScene
                 --this.player.lives;
                 this.UI.setTries(this.player.lives);
             }else{
-                this.player.body.enable = false;
+                body.enable = false;
                 this.gameOver();
             }
 
             this.player.y = -40;
             this.player.x = Math.random() * this.dim.w;
-            this.player.body.velocity.y = 1;
+            body.velocity.y = 1;
         }
     }
 

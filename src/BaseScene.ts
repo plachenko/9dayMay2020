@@ -26,8 +26,5 @@ export default class BaseScene extends Phaser.Scene
             cols: 11,
             rows: 11 
         });
-        if(this.game.debug){
-            this.aGrid?.showNumbers();
-        }
     }
 }

@@ -1,10 +1,12 @@
+import BaseScene from '~/BaseScene';
+
 export default class Character extends Phaser.GameObjects.Sprite {
-    private lives = 3;
     private particles;
     private fire;
     public fireOn = false;
+    public lives = 3;
 
-    constructor(scene: Phaser.Scene, idx = 0){
+    constructor(scene: BaseScene, idx = 0){
         super(scene, 0, 0, "ninja");
 
         this.setScale(.2);
