@@ -9,14 +9,15 @@ export default class BootScene extends Phaser.Scene{
         this.load.image("smoke", "images/particles/smoke.png");
         this.load.image("ninja", "images/ninja.png");
         this.load.image("title", "images/title.png");
+        this.load.image("cookie", "images/cookie.png");
         this.load.glsl("stars", "starfields.glsl.js");
     }
 
     create()
     {
         this.add.text(20, 20, "Loading Game...");
-        // this.scene.start('game');
-        this.scene.start('title');
+        this.scene.start('game');
+        // this.scene.start('title');
     }
 
 }

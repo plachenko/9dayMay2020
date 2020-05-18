@@ -10,7 +10,7 @@ export default class TitleScreen extends BaseScene
 
 	constructor()
 	{
-		super('title')
+		super('title');
 	}
 
     create()

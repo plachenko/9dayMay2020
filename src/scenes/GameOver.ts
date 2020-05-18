@@ -42,6 +42,6 @@ export default class GameOver extends BaseScene
     changeScene(){
         gsap.to(this.text, .4, {y: "-=20", alpha: 0})
         gsap.to(this.pressKey, .4, {y: "+=20", alpha: 0})
-        super.changeScene('game');
+        super.changeScene('game', {});
     }
 }

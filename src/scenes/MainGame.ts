@@ -75,7 +75,6 @@ export default class MainGame extends BaseScene
             if(this.input.mouse.locked){
                 this.physics.world.timeScale = 1;
                 mMove = true;
-                ninja.fireToggle();
             }
         });
 
@@ -84,7 +83,6 @@ export default class MainGame extends BaseScene
             if(this.input.mouse.locked){
                 this.physics.world.timeScale = 20;
                 mMove = false;
-                // ninja.fireToggle();
             }
         });
 
