@@ -1,21 +1,24 @@
+import BaseScene from '~/BaseScene';
+
 export default class Paddle extends Phaser.GameObjects.Rectangle {
-    constructor(scene: Phaser.Scene, idx = 0){
+    constructor(scene: BaseScene, idx = 0){
         super(scene, 0, 0, 100, 20, 0xFF0000);
 
         scene.add.existing(this);
         scene.physics.add.existing(this, true);
 
-        const body = this.body as Phaser.Physics.Arcade.Body;
         if(idx){
             scene.aGrid.placeAtIndex(idx, this);
         }
 
+        const body = this.body as Phaser.Physics.Arcade.StaticBody;
         body.updateFromGameObject();
     }
 
     public move(x = 0, dim){
         const paddle = this;
         const w = paddle.width / 2;
+        const body = this.body as Phaser.Physics.Arcade.StaticBody;
 
         if(paddle.x > w){
             paddle.x += x;
@@ -29,6 +32,6 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
             paddle.x = dim.w - w;
         }
 
-        this.body.updateFromGameObject();
+        body.updateFromGameObject();
     }
 }

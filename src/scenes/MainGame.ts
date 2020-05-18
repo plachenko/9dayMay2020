@@ -10,9 +10,10 @@ export default class MainGame extends BaseScene
     private dim: any = {w: 0, h: 0};
     private player: Character;
     private paddle: Paddle;
-    private timer: any;
+    private timer: Phaser.Time.TimerEvent;
     private timerInt: number;
-    private score = 0;
+    private score: number;
+    private bGameOver: boolean;
 
 	constructor()
 	{
@@ -21,6 +22,7 @@ export default class MainGame extends BaseScene
 
     init()
     {
+        this.bGameOver = false;
         this.score = 0;
         this.timerInt = 200;
         this.UI = this.scene.get('ui');
@@ -55,7 +57,7 @@ export default class MainGame extends BaseScene
     }
 
     handleTimer(){
-        if(this.timerInt >= 1){
+        if(this.timerInt >= 1 && !this.bGameOver){
             this.timerInt -= 1;
         }else{
             this.gameOver();
@@ -116,6 +118,7 @@ export default class MainGame extends BaseScene
     }
 
     gameOver(){
+        this.bGameOver = true;
         this.scene.stop('ui');
         this.changeScene('game-over', this.score);
     }

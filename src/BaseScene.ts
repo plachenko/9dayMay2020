@@ -3,7 +3,7 @@ import AlignGrid from './extern/AlignGrid';
 export default class BaseScene extends Phaser.Scene
 {
 
-    protected aGrid ?: AlignGrid;
+    public aGrid ?: AlignGrid;
     protected timeout = .4 * 1000;
     protected cursorKeys ?: Phaser.Types.Input.Keyboard.CursorKeys;
 

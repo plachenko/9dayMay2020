@@ -16,7 +16,6 @@ export default class GameOver extends BaseScene
     
     init(data)
     {
-        console.log(data);
         if(typeof data == "number"){
             this.scoreNumber = data;
         }else{
