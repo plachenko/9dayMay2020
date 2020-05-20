@@ -35,7 +35,10 @@ export default class GameOver extends BaseScene
         gsap.from(this.score, {y: "-=20", alpha: 0});
         gsap.from(this.text, {y: "-=20", alpha: 0, delay: .5});
         gsap.from(this.pressKey, {y: "+=20", alpha: 0, delay: 1.5, onComplete: () => {
-            this.input.keyboard.once('keydown-SPACE', () => {this.changeScene()});
+            this.input.keyboard.once('keydown-SPACE', () => {
+                this.cameras.main.flash(200);
+                this.changeScene();
+            });
         }});
     }
 

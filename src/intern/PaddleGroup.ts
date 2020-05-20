@@ -1,18 +1,14 @@
 import BaseScene from '~/BaseScene';
 
-export default class Paddle extends Phaser.GameObjects.Rectangle {
-    body: Phaser.Physics.Arcade.StaticBody;
+export default class PaddleGroup extends Phaser.Physics.Arcade.Group {
     constructor(scene: BaseScene, idx = 0){
-        super(scene, 0, 0, 100, 20, 0xFF0000);
+        super(scene.physics.world, scene);
 
         scene.add.existing(this);
-        scene.physics.add.existing(this, true);
 
         if(idx){
             scene.aGrid.placeAtIndex(idx, this);
         }
-
-        this.body.updateFromGameObject();
     }
 
     public move(x = 0, dim){
@@ -33,5 +29,4 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
 
         this.body.updateFromGameObject();
     }
-
 }
