@@ -69,8 +69,7 @@ export default class MainGame extends BaseScene
         this.physics.world.checkCollision.up = false;
 
         document.addEventListener('pointerlockchange', () => {
-            console.log(this.scene);
-            if(this.scene.key == "game"){
+            if(!this.bGameOver){
                 this.pause();
             }
         });
@@ -214,11 +213,13 @@ export default class MainGame extends BaseScene
         if(document.pointerLockElement){
             if(this.bPaused){
                 this.bPaused = false;
+                this.scene.wake('ui');
                 this.scene.resume('game');
                 this.scene.stop('pause');
             }
         }else{
             this.scene.pause();
+            this.scene.sleep('ui');
             this.scene.launch('pause');
             this.bPaused = true;
         }

@@ -41,6 +41,10 @@ export default class GameOver extends BaseScene
                 this.changeScene();
             });
         }});
+
+        document.addEventListener('pointerlockchange', () => {
+            return false;
+        });
     }
 
     changeScene(){

@@ -27,15 +27,16 @@ export default class Character extends Phaser.GameObjects.Sprite {
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
+        const body = this.body as Phaser.Physics.Arcade.Body;
+
         if(idx){
             scene.aGrid.placeAtIndex(idx, this);
         }else{
             this.x = scene.paddle.x;
             this.y = scene.paddle.y - 30;
+            body.setVelocity(0, -500);
         }
 
-
-        const body = this.body as Phaser.Physics.Arcade.Body;
         body.setCircle(90)
         body.setAngularDrag(10);
         body.setCollideWorldBounds(true)
