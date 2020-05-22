@@ -229,8 +229,8 @@ export default class MainGame extends BaseScene
             this.cookies.splice(idx, 1);
             cookie.handleTake();
             if(this.cookies.length == 0){
-                this.scene.start('game-over', this.score);
-                // this.changeScene('game-over', this.score);
+                // this.scene.start('game-over', this.score);
+                this.changeScene('game-over', this.score);
             }
         });
         this.scene.stop('ui');
