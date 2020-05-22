@@ -13,11 +13,12 @@ export default class BaseScene extends Phaser.Scene
         this.cameras.main.fadeFrom(this.timeout);
     }
 
-    changeScene(scene: string, data){
+    changeScene(scene: string, data, time = null){
         this.cameras.main.fade(this.timeout);
+        const _time = time || this.timeout;
         setTimeout(()=> {
             this.scene.start(scene, data);
-        }, this.timeout);
+        }, _time);
     }
 
     protected loadGrid(){

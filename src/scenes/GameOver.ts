@@ -30,13 +30,14 @@ export default class GameOver extends BaseScene
 
         this.score = this.add.text(screenCenterX, screenCenterY - 100, 'SCORE: ' + this.scoreNumber).setOrigin(0.5);
         this.text = this.add.text(screenCenterX, screenCenterY, 'Game Over.').setOrigin(0.5);
-        this.pressKey = this.add.text(screenCenterX, screenCenterY + 100, 'Press SPACE to restart').setOrigin(0.5);
+        this.pressKey = this.add.text(screenCenterX, screenCenterY + 100, 'Click to restart').setOrigin(0.5);
 
         gsap.from(this.score, {y: "-=20", alpha: 0});
         gsap.from(this.text, {y: "-=20", alpha: 0, delay: .5});
         gsap.from(this.pressKey, {y: "+=20", alpha: 0, delay: 1.5, onComplete: () => {
-            this.input.keyboard.once('keydown-SPACE', () => {
+            this.input.on('pointerdown', (pointer)=> {
                 this.cameras.main.flash(200);
+                this.input.mouse.requestPointerLock();
                 this.changeScene();
             });
         }});

@@ -4,7 +4,6 @@ import BaseScene from '~/BaseScene';
 import Character from '~/intern/Character';
 import Cookie from '~/intern/Cookie';
 import Paddle from '~/intern/Paddle';
-import { GridFactory } from 'matter';
 
 export default class MainGame extends BaseScene
 {
@@ -14,16 +13,16 @@ export default class MainGame extends BaseScene
 
     private UI: any;
     private paddle: Paddle;
-    private paddle2: Paddle;
     private timer: Phaser.Time.TimerEvent;
     private timerInt: number;
     private score: number;
     private bGameOver: boolean;
-    private paddleGroup: Phaser.GameObjects.Group;
+    private bPaused: boolean;
 
-    private shootAngle: any;
     private gfx: any;
-    private hit = false;
+
+    private shootTo = {x: 0, y: 0};
+    private tries;
 
 	constructor()
 	{
@@ -33,12 +32,15 @@ export default class MainGame extends BaseScene
     init()
     {
         this.bGameOver = false;
+        this.bPaused = false;
         this.score = 0;
         this.timerInt = 200;
         this.UI = this.scene.get('ui');
         this.cookies = [];
+        this.tries = 3;
         this.UI.timerInt = this.timerInt;
         this.UI.scoreInt = this.score;
+        this.UI.triesInt = this.tries;
     }
 
     create()
@@ -57,26 +59,24 @@ export default class MainGame extends BaseScene
 
         this.scene.run('ui');
 
-        this.paddle = new Paddle(this, 104);
-        this.paddleGroup = this.add.group([this.paddle]);
-
         this.player = new Character(this, 49);
+        this.paddle = new Paddle(this, 104);
+        this.shootTo = new Phaser.Math.Vector2(this.paddle.x, this.paddle.y - 80);
 
-        this.paddle2 = new Paddle(this, 93);
-        this.paddle2.setAlpha(0);
+        this.spawnCookies(10);
 
-        setTimeout(()=> {
-            for(let i =0; i < 10; i++){
-                this.cookies.push(new Cookie(this));
-            }
-        },1000)
-
-        this.UI.triesInt = this.player.lives;
-
-        this.physics.add.collider(this.paddle, this.player, this.handleBallHit, undefined, this);
         this.physics.world.on('worldbounds', this.handleWorldCollide, this);
+        this.physics.world.checkCollision.up = false;
+
+        document.addEventListener('pointerlockchange', () => {
+            console.log(this.scene);
+            if(this.scene.key == "game"){
+                this.pause();
+            }
+        });
 
         this.handleInput();
+        this.cameras.main.setTint(0x00FF00);
     }
 
     update(time)
@@ -86,14 +86,36 @@ export default class MainGame extends BaseScene
         })
     }
 
+    spawnCookies(num){
+        for(let i =0; i < num; i++){
+            setTimeout(() => {
+                this.cookies.push(new Cookie(this));
+            }, 100*i);
+        }
+    }
+
     handleTimer(){
         if(this.timerInt >= 1 && !this.bGameOver){
             this.timerInt -= 1;
         }else{
+            if(!this.bGameOver) this.player.explode();
             this.gameOver();
         }
 
         this.UI.tick(this.timerInt);
+    }
+
+    setScore(num){
+        this.score += num;
+        if(!this.bGameOver) this.UI.setScore(this.score);
+    }
+
+    handleCookieHit(cookie){
+        const idx = this.cookies.indexOf(cookie);
+        this.cookies.splice(idx, 1);
+        if(this.cookies.length == 0){
+            this.spawnCookies(10);
+        }
     }
 
     handleInput(){
@@ -102,27 +124,21 @@ export default class MainGame extends BaseScene
         const ninja = this.player;
         const line = new Phaser.Geom.Line();
         this.gfx = this.add.graphics().setDefaultStyles({lineStyle: { width: 2, color: 0xffdd00, alpha: 0.5 }})
-        let angle = Phaser.Math.Angle.BetweenPoints(paddle, this.paddle2);
+        let angle = Phaser.Math.Angle.BetweenPoints(paddle, this.shootTo);
 
         this.input.on('pointerup', (pointer) => {
-            this.physics.world.setFPS(60);
+            this.shootTo.x = this.paddle.x;
             if(this.input.mouse.locked){
                 this.physics.world.timeScale = 1;
                 mMove = true;
-                if(this.shootAngle){
-                    this.shoot(this.shootAngle);
-
-                    if(!this.hit){
-                        this.shootAngle = null;
-                    }
-                }
+                this.shoot(angle);
             }
-            this.paddle2.x = this.paddle.x;
+            this.gfx.clear().strokeLineShape(line);
         });
 
         this.input.on('pointerdown', (pointer)=> {
-            this.physics.world.setFPS(420);
             this.input.mouse.requestPointerLock();
+            this.shootTo.x = this.paddle.x;
             if(this.input.mouse.locked){
                 this.physics.world.timeScale = 20;
                 mMove = false;
@@ -132,24 +148,14 @@ export default class MainGame extends BaseScene
         this.input.on('pointermove', (pointer) => {
             if(this.input.mouse.locked){
                 if(mMove == true) {
-                    this.paddle2.x = this.paddle.x;
-                    this.paddle2.move(pointer.movementX, this.dim);
-                    this.paddleGroup.getChildren().forEach((child, idx) => {
-                        if(idx == 0){
-                            child.move(pointer.movementX, this.dim);
-                        }else{
-                            if(this.player.body.enable == false){
-                                child.x = this.paddle.x;
-                            }
-                        }
-                    })
+                    this.shootTo.x += pointer.movementX;
+                    this.paddle.move(pointer.movementX, this.dim);
+                    if(!this.bGameOver){
+                        this.player.move(this.paddle.x);
+                    }
                 }else{
-                    this.paddle2.x += pointer.movementX;
-                    angle = Phaser.Math.Angle.BetweenPoints(paddle, this.paddle2);
-                    this.shootAngle = angle;
-                    // console.log(this.shootAngle);
-                }
-                if(this.shootAngle){
+                    this.shootTo.x += pointer.movementX;
+                    angle = Phaser.Math.Angle.BetweenPoints(paddle, this.shootTo);
                 }
                 Phaser.Geom.Line.SetToAngle(line, paddle.x, paddle.y, angle, 128);
                 this.gfx.clear().strokeLineShape(line);
@@ -159,68 +165,75 @@ export default class MainGame extends BaseScene
 
     handleWorldCollide(body, up, down, left, right){
         if(down){
-            this.player.y = -40;
-            this.player.x = Math.random() * this.dim.w;
-            body.velocity.y = 1;
-
-            if(this.player.lives > 1){
-                --this.player.lives;
-                this.UI.setTries(this.player.lives);
-            }else{
-                body.enable = false;
-                if(!this.bGameOver){
-                    this.gameOver();
-                } 
-            }
+            this.handleKill();
         }
     }
 
-    handleCookieHit(char, cookie){
-        this.score++;
-        cookie.disableBody(true, true);
+    handleKill(){
+        this.cameras.main.flash(100, 155, 0, 0);
+        this.player.kill();
+        if(this.tries > 1){
+            if(!this.bGameOver){
+                /*
+                this.player = new Character(
+                    this, 
+                    Phaser.Math.Between(0, 11), 
+                    new Phaser.Math.Vector2(Phaser.Math.Between(0, 11), 0)
+                );
+                */
+                this.player = new Character(this);
+                this.paddle.catch(this.player);
+                this.setTries(-1);
+            }
+        }else{
+            this.gameOver();
+        }
+    }
+
+    setTime(num){
+        this.timerInt += num;
+        if(!this.bGameOver) this.UI.tick(this.timerInt);
+    }
+
+    setTries(num){
+        this.tries += num;
+        if(!this.bGameOver) this.UI.setTries(this.tries);
     }
 
     shoot(angle){
         const player = this.player; 
         const body = player.body as Phaser.Physics.Arcade.Body;
+        this.physics.world.enableBody(player);
         const vel = body.velocity;
-        this.gfx.clear();
 
-        if(!body.enable){
-            body.enable = true;
-            this.physics.velocityFromAngle(angle * (180/Math.PI), 900, body.velocity);
-        }
+        body.setAngularVelocity((angle * (180/Math.PI) + 90) * 200);
+        this.physics.velocityFromAngle(angle * (180/Math.PI), 900, body.velocity);
     }
-
-    handleBallHit(paddle, ball){
-        const body = ball.body as Phaser.Physics.Arcade.Body;
-        const vel = body.velocity;
-
-        this.hit = false;
-
-        // console.log(this.shootAngle);
-
-        if(!this.shootAngle){
-            body.enable = false;
-            this.paddleGroup.add(ball);
-            this.hit = true;
+    
+    pause(e){
+        if(document.pointerLockElement){
+            if(this.bPaused){
+                this.bPaused = false;
+                this.scene.resume('game');
+                this.scene.stop('pause');
+            }
         }else{
-            // this.hit = false;
-            this.shoot(this.shootAngle, );
+            this.scene.pause();
+            this.scene.launch('pause');
+            this.bPaused = true;
         }
-
-        this.score++;
-        this.UI.setScore(this.score);
-
-        // vel.x = 400;
-        // vel.y *= 1.1;
-
-        // body.setVelocity(vel.x, vel.y);
     }
 
     gameOver(){
-        this.bGameOver = true;
+        this.cookies.forEach((cookie,idx) => {
+            this.cookies.splice(idx, 1);
+            cookie.handleTake();
+            if(this.cookies.length == 0){
+                this.scene.start('game-over', this.score);
+                // this.changeScene('game-over', this.score);
+            }
+        });
         this.scene.stop('ui');
-        this.changeScene('game-over', this.score);
+        this.bGameOver = true;
     }
 }

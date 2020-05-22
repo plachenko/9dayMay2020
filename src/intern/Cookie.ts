@@ -7,31 +7,35 @@ export default class Cookie extends Phaser.Physics.Arcade.Sprite {
     rand = Math.random() * 900;
     fire: Phaser.GameObjects.Particles.ParticleEmitter;
     particle: Phaser.GameObjects.Particles.ParticleEmitterManager;
-    smoke: Phaser.GameObjects.Particles.ParticleEmitterManager;
-    list: Cookie[] = [];
+    sceneRef: MainGame;
 
     constructor(scene: MainGame, pos?: any) {
         super(scene, 0, 0, "cookie");
 
-        this.list = scene.cookies;
-        this.x = pos?.x || Math.random() * scene.dim.w;
-        this.y = pos?.y || Math.random() * scene.dim.h;
+        
+        this.x = pos?.x || Phaser.Math.Between(10, scene.dim.w - 10);
+        this.y = pos?.y || Phaser.Math.Between(10, scene.dim.h - 150) ;
         this.setScale(.1);
 
-        gsap.from(this, {alpha: 0})
 
         this.particle = scene.add.particles('red');
+
+        scene.add.existing(this);
+        scene.physics.world.enableBody(this, Phaser.Physics.Arcade.STATIC_BODY);
+
+        this.setFire();
+
+        gsap.from(this, 1, {alpha: 0})
+        // gsap.to(this.fire, 1, {alpha: 0})
+    }
+
+    setFire(){
         this.fire = this.particle.createEmitter({
-            speed: 30,
+            speed: 20,
             scale: { start: .2, end: 0 },
             blendMode: 'ADD'
         });
         this.fire.startFollow(this);
-
-        scene.add.existing(this);
-        scene.physics.world.enableBody(this, Phaser.Physics.Arcade.STATIC_BODY);
-        scene.physics.add.overlap(scene.player, this, this.handleOverlap, undefined, this);
-
     }
 
     update(time){
@@ -41,12 +45,9 @@ export default class Cookie extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    handleOverlap(player, cookie){
-        const idx = this.list.indexOf(cookie);
-        this.list.splice(idx, 1);
+    handleTake(){
+        this.fire?.explode(0, this.x, this.y);
         this.destroy();
-
-        this.fire.setGravity(0, 300)
-        this.fire.explode(0, cookie.x, cookie.y);
+        this.fire?.setGravity(0, 300)
     }
 }

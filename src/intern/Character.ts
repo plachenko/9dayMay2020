@@ -1,19 +1,25 @@
-import BaseScene from '~/BaseScene';
+import MainGame from '~/scenes/MainGame';
+import gsap from 'gsap';
 
 export default class Character extends Phaser.GameObjects.Sprite {
+
     private particles;
     private fire;
+    private sceneRef: MainGame;
     public fireOn = false;
-    public lives = 3;
+    public cookiesCollected = 0;
+    public energy = 0;
 
-    constructor(scene: BaseScene, idx = 0){
+    constructor(scene: MainGame, idx = 0){
         super(scene, 0, 0, "ninja");
+
+        this.sceneRef = scene;
 
         this.setScale(.2);
         this.particles = scene.add.particles('red');
         this.fire = this.particles.createEmitter({
             speed: 100,
-            scale: { start: .6, end: 0 },
+            scale: { start: .2, end: 0 },
             blendMode: 'ADD'
         });
         this.fire.startFollow(this);
@@ -21,15 +27,68 @@ export default class Character extends Phaser.GameObjects.Sprite {
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        scene.aGrid.placeAtIndex(idx, this);
+        if(idx){
+            scene.aGrid.placeAtIndex(idx, this);
+        }else{
+            this.x = scene.paddle.x;
+            this.y = scene.paddle.y - 30;
+        }
+
 
         const body = this.body as Phaser.Physics.Arcade.Body;
-        body.setCircle(30);
-        body.setBounce(.9, .9);
-        body.setCollideWorldBounds(true);
+        body.setCircle(90)
+        body.setAngularDrag(10);
+        body.setCollideWorldBounds(true)
+
+        this.setEnergy(0);
+
+        scene.physics.add.overlap(this, scene.cookies, this.handleOverlap, undefined, this);
+
         body.onWorldBounds = true;
-        body.angularDrag = 1;
-        body.angularVelocity = 900;
+    }
+
+    setEnergy(num){
+        this.body.setBounce(.3, .3)
+    }
+
+    handleOverlap(player, cookie){
+        this.sceneRef.handleCookieHit(cookie);
+        cookie.handleTake();
+        this.cookiesCollected++;
+    }
+
+    handlePaddleHit(){
+        this.sceneRef.setScore(this.cookiesCollected);
+        this.cookiesCollected = 0;
+    }
+
+    move(pos){
+        const body = this.body as Phaser.Physics.Arcade.Body;
+        const pVel = Math.abs(Math.floor(body.velocity.y) + (body.bounce.y * 10)) - 1;
+        const yMax = this.sceneRef.dim.h - 120;
+
+        if(pVel == 0 && this.y > yMax ){
+            this.x = pos;
+            this.scene.physics.world.disableBody(body);
+        }
+    }
+
+    kill(){
+        this.destroy();
+    }
+
+    explode(){
+        this.body.enable = false;
+        gsap.to(this, {duration: .2, tint: 0xFF0000, repeat: -1,  yoyo: true})
+        this.setTint(0xFF0000);
+        setTimeout(()=>{
+            this.fire.start();
+            this.fire.explode(100, this.x, this.y);
+            this.alpha = 0;
+            setTimeout(()=>{
+                this.fire.remove();
+            }, 800);
+        }, 2000);
     }
 
     fireToggle(){

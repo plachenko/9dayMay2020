@@ -6,7 +6,8 @@ import {
 	TitleScreen,
 	MainGame,
 	GameOver,
-	UI
+	UI,
+	PauseScene
 } from './scenes';
 
 // import HelloWorldScene from './scenes/TitleScreen'
@@ -24,6 +25,7 @@ const config: Phaser.Types.Core.GameConfig = {
 		default: 'arcade',
 		arcade: {
 			gravity: { y: 900 },
+			fps: 420,
 			// debug: true
 		},
 	},
@@ -32,6 +34,7 @@ const config: Phaser.Types.Core.GameConfig = {
 		TitleScreen, 
 		MainGame, 
 		GameOver,
+		PauseScene,
 		UI
 	]
 }
