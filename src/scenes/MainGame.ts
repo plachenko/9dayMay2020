@@ -130,7 +130,7 @@ export default class MainGame extends BaseScene
             if(this.input.mouse.locked){
                 this.physics.world.timeScale = 1;
                 mMove = true;
-                this.shoot(angle);
+                // this.shoot(angle);
             }
             this.gfx.clear().strokeLineShape(line);
         });
