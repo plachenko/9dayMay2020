@@ -66,7 +66,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
     move(pos){
         const body = this.body as Phaser.Physics.Arcade.Body;
         const pVel = Math.abs(Math.floor(body.velocity.y) + (body.bounce.y * 10)) - 1;
-        const yMax = this.sceneRef.dim.h - 120;
+        const yMax = this.sceneRef.dim.h - 140;
 
         if(pVel == 0 && this.y > yMax ){
             this.x = pos;

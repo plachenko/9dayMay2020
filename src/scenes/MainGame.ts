@@ -18,10 +18,11 @@ export default class MainGame extends BaseScene
     private score: number;
     private bGameOver: boolean;
     private bPaused: boolean;
+    private bMouseMove: boolean;
+    private xMove: number;
 
     private gfx: any;
 
-    private shootTo = {x: 0, y: 0};
     private tries;
 
 	constructor()
@@ -31,8 +32,10 @@ export default class MainGame extends BaseScene
 
     init()
     {
+        this.xMove = 0;
         this.bGameOver = false;
         this.bPaused = false;
+        this.bMouseMove = true;
         this.score = 0;
         this.timerInt = 200;
         this.UI = this.scene.get('ui');
@@ -61,7 +64,6 @@ export default class MainGame extends BaseScene
 
         this.player = new Character(this, 49);
         this.paddle = new Paddle(this, 104);
-        this.shootTo = new Phaser.Math.Vector2(this.paddle.x, this.paddle.y - 80);
 
         this.spawnCookies(10);
 
@@ -80,9 +82,14 @@ export default class MainGame extends BaseScene
 
     update(time)
     {
-        this.cookies.forEach((cookie) => {
-            cookie.update(time)
-        })
+        if(!this.bGameOver && this.bMouseMove){
+            this.cookies.forEach((cookie) => {
+                cookie.update(time)
+            });
+            this.paddle.move(this.xMove, this.dim);
+            this.player.move(this.paddle.x); 
+            this.xMove = 0;
+        }
     }
 
     spawnCookies(num){
@@ -118,46 +125,31 @@ export default class MainGame extends BaseScene
     }
 
     handleInput(){
-        let mMove = true;
         const paddle = this.paddle;
         const ninja = this.player;
-        const line = new Phaser.Geom.Line();
-        this.gfx = this.add.graphics().setDefaultStyles({lineStyle: { width: 2, color: 0xffdd00, alpha: 0.5 }})
-        let angle = Phaser.Math.Angle.BetweenPoints(paddle, this.shootTo);
 
         this.input.on('pointerup', (pointer) => {
-            this.shootTo.x = this.paddle.x;
             if(this.input.mouse.locked){
-                this.physics.world.timeScale = 1;
-                mMove = true;
-                // this.shoot(angle);
+                this.bMouseMove = true;
+                paddle.handleShoot();
             }
-            this.gfx.clear().strokeLineShape(line);
         });
 
         this.input.on('pointerdown', (pointer)=> {
             this.input.mouse.requestPointerLock();
-            this.shootTo.x = this.paddle.x;
+
             if(this.input.mouse.locked){
-                this.physics.world.timeScale = 20;
-                mMove = false;
+                this.bMouseMove = false;
             }
         });
 
         this.input.on('pointermove', (pointer) => {
             if(this.input.mouse.locked){
-                if(mMove == true) {
-                    this.shootTo.x += pointer.movementX;
-                    this.paddle.move(pointer.movementX, this.dim);
-                    if(!this.bGameOver){
-                        this.player.move(this.paddle.x);
-                    }
+                if(this.bMouseMove){
+                    this.xMove = pointer.movementX;
                 }else{
-                    this.shootTo.x += pointer.movementX;
-                    angle = Phaser.Math.Angle.BetweenPoints(paddle, this.shootTo);
-                }
-                Phaser.Geom.Line.SetToAngle(line, paddle.x, paddle.y, angle, 128);
-                this.gfx.clear().strokeLineShape(line);
+                    paddle.setShootAngle(pointer.movementX);
+                } 
             }
         });
     }
@@ -173,13 +165,6 @@ export default class MainGame extends BaseScene
         this.player.kill();
         if(this.tries > 1){
             if(!this.bGameOver){
-                /*
-                this.player = new Character(
-                    this, 
-                    Phaser.Math.Between(0, 11), 
-                    new Phaser.Math.Vector2(Phaser.Math.Between(0, 11), 0)
-                );
-                */
                 this.player = new Character(this);
                 this.paddle.catch(this.player);
                 this.setTries(-1);
@@ -199,16 +184,6 @@ export default class MainGame extends BaseScene
         if(!this.bGameOver) this.UI.setTries(this.tries);
     }
 
-    shoot(angle){
-        const player = this.player; 
-        const body = player.body as Phaser.Physics.Arcade.Body;
-        this.physics.world.enableBody(player);
-        const vel = body.velocity;
-
-        body.setAngularVelocity((angle * (180/Math.PI) + 90) * 200);
-        this.physics.velocityFromAngle(angle * (180/Math.PI), 900, body.velocity);
-    }
-    
     pause(e){
         if(document.pointerLockElement){
             if(this.bPaused){
