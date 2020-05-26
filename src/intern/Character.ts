@@ -9,6 +9,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
     public fireOn = false;
     public cookiesCollected = 0;
     public energy = 0;
+    private touching = false;
 
     constructor(scene: MainGame, idx = 0){
         super(scene, 0, 0, "ninja");
@@ -37,15 +38,19 @@ export default class Character extends Phaser.GameObjects.Sprite {
             body.setVelocity(0, -500);
         }
 
-        body.setCircle(90)
-        body.setAngularDrag(10);
-        body.setCollideWorldBounds(true)
+        body.setCircle(90);
+        body.setCollideWorldBounds(true);
 
         this.setEnergy(0);
 
         scene.physics.add.overlap(this, scene.cookies, this.handleOverlap, undefined, this);
 
         body.onWorldBounds = true;
+    }
+
+    update()
+    {
+        this.move(this.scene.paddle.x);
     }
 
     setEnergy(num){
@@ -61,17 +66,41 @@ export default class Character extends Phaser.GameObjects.Sprite {
     handlePaddleHit(){
         this.sceneRef.setScore(this.cookiesCollected);
         this.cookiesCollected = 0;
+
+        /*
+        if(this.touching){
+            // this.scene.paddle.itemsTouching.push(this);
+            console.log('touch')
+            this.touching = false;
+        }else{
+            this.touching = true;
+        }
+        */
     }
 
     move(pos){
         const body = this.body as Phaser.Physics.Arcade.Body;
         const pVel = Math.abs(Math.floor(body.velocity.y) + (body.bounce.y * 10)) - 1;
-        const yMax = this.sceneRef.dim.h - 140;
+        const yMax = this.sceneRef.dim.h - 145;
+        // const gfx = this.scene.add.graphics().setDefaultStyles({lineStyle: { width: 2, color: 0xffdd00, alpha: 0.5 }})
+        // const line = new Phaser.Geom.Line(0, yMax, this.scene.dim.w, yMax);
+        // const line2 = new Phaser.Geom.Line(0, this.y, this.scene.dim.w, this.y);
+        
+        // gfx.clear().strokeLineShape(line);
 
-        if(pVel == 0 && this.y > yMax ){
+        // console.log(this.scene.paddle.body);
+        if(body.blocked.down && this.y > this.scene.paddle.y - 40){
             this.x = pos;
-            this.scene.physics.world.disableBody(body);
+            body.setAngularDrag(500);
+            // this.scene.physics.world.disableBody(body);
+            // body.enable = false;
         }
+        // console.log(this.body.enable);
+
+        /*
+       if(!this.body.enable){
+       }
+       */
     }
 
     kill(){

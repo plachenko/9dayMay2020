@@ -7,6 +7,7 @@ import {
 	MainGame,
 	GameOver,
 	UI,
+	ArcVisual,
 	PauseScene
 } from './scenes';
 
@@ -35,6 +36,7 @@ const config: Phaser.Types.Core.GameConfig = {
 		MainGame, 
 		GameOver,
 		PauseScene,
+		ArcVisual,
 		UI
 	]
 }

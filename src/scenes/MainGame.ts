@@ -76,18 +76,19 @@ export default class MainGame extends BaseScene
             }
         });
 
+
         this.handleInput();
         this.cameras.main.setTint(0x00FF00);
     }
 
     update(time)
     {
+        this.paddle.update();
         if(!this.bGameOver && this.bMouseMove){
             this.cookies.forEach((cookie) => {
                 cookie.update(time)
             });
-            this.paddle.move(this.xMove, this.dim);
-            this.player.move(this.paddle.x); 
+            this.player.update();
             this.xMove = 0;
         }
     }
@@ -131,15 +132,20 @@ export default class MainGame extends BaseScene
         this.input.on('pointerup', (pointer) => {
             if(this.input.mouse.locked){
                 this.bMouseMove = true;
-                paddle.handleShoot();
+                paddle.bAiming = false;
+                paddle.shoot();
+            }else{
+                if(!this.bPaused){
+                    this.input.mouse.requestPointerLock();
+                }
             }
         });
 
         this.input.on('pointerdown', (pointer)=> {
-            this.input.mouse.requestPointerLock();
-
             if(this.input.mouse.locked){
                 this.bMouseMove = false;
+                paddle.strength = 0;
+                paddle.bAiming = true;
             }
         });
 
@@ -147,7 +153,9 @@ export default class MainGame extends BaseScene
             if(this.input.mouse.locked){
                 if(this.bMouseMove){
                     this.xMove = pointer.movementX;
+                    paddle.bMoving = true;
                 }else{
+                    paddle.showArcScene();
                     paddle.setShootAngle(pointer.movementX);
                 } 
             }
@@ -210,6 +218,7 @@ export default class MainGame extends BaseScene
             }
         });
         this.scene.stop('ui');
+        this.scene.stop('arc-viz');
         this.bGameOver = true;
     }
 }
