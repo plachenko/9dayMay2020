@@ -4,6 +4,7 @@ import BaseScene from '~/BaseScene';
 import Character from '~/intern/Character';
 import Cookie from '~/intern/Cookie';
 import Paddle from '~/intern/Paddle';
+import Enemy from '~/intern/Enemy';
 
 export default class MainGame extends BaseScene
 {
@@ -20,6 +21,7 @@ export default class MainGame extends BaseScene
     private bPaused: boolean;
     private bMouseMove: boolean;
     private xMove: number;
+    private enemies: Enemy[] = [];
 
     private gfx: any;
 
@@ -62,6 +64,9 @@ export default class MainGame extends BaseScene
 
         this.scene.run('ui');
 
+        const en = new Enemy(this);
+        this.enemies.push(en);
+
         this.player = new Character(this, 49);
         this.paddle = new Paddle(this, 104);
 
@@ -79,6 +84,10 @@ export default class MainGame extends BaseScene
 
         this.handleInput();
         this.cameras.main.setTint(0x00FF00);
+    }
+
+    addChar(){
+        this.player = new Character(this);
     }
 
     update(time)
@@ -173,7 +182,7 @@ export default class MainGame extends BaseScene
         this.player.kill();
         if(this.tries > 1){
             if(!this.bGameOver){
-                this.player = new Character(this);
+                this.addChar();
                 this.paddle.catch(this.player);
                 this.setTries(-1);
             }

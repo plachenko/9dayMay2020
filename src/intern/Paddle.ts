@@ -11,7 +11,7 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
     private line = new Phaser.Geom.Line();
     private fire;
     private energy = 100;
-    public strength = 0;
+    public strength = 20;
     private maxStrength = 100;
     public bAiming = false;
     private eBar;
@@ -58,6 +58,8 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
             if(this.energy < 100){
                 if(!this.bMoving){
                     this.energy++;
+                }else{
+                    this.energy+=.7;
                 }
             }
             this.move(this.scene.xMove, this.scene.dim);
@@ -86,52 +88,10 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
             this.scene.physics.world.timeScale = 20;
 
             this.shootTo.x += xAmt;
-            // this.drawLine();
-            // this.drawArc();
 
         }
         this.shootAngle = Phaser.Math.Angle.BetweenPoints(this, this.shootTo);
-        // this.sceneRef.scene.wake('ui');
-        // this.av.setPos();
-        // this.av.renderArc(this.shootAngle);
 
-    }
-
-    private drawArc(){
-        this.scene.UI.children.list.forEach((child) => {
-            if(child instanceof Phaser.GameObjects.Arc){
-                gsap.to(child, .4, {alpha: 0});
-                setTimeout(()=> {
-                    child.destroy();
-                    child = null;
-                }, 1000);
-            }
-        });
-
-        const bounce =this.scene.player.body.bounce; 
-        const circ = this.scene.add.circle(this.x, this.y - 30, 10, 0x0FFFFFF);
-        circ.setAlpha(.2);
-        this.scene.UI.add.existing(circ);
-        this.scene.UI.physics.add.existing(circ);
-        const body = circ.body as Phaser.Physics.Arcade.Body;
-        body.setCircle(10);
-        body.setVelocity(0, -500)
-        body.setCollideWorldBounds(true);
-
-        body.collideWorldBounds = true;
-        // this.scene.UI.physics.world.on('worldbounds', this.testBounds, this);
-        // console.log(this.scene.UI.physics.world);
-
-        body.setBounce(bounce.x, bounce.y);
-        body.setAngularVelocity((this.shootAngle * (180/Math.PI) + 90) * 200);
-        this.scene.UI.physics.velocityFromAngle((this.shootAngle * (180/Math.PI)), 900, body.velocity);
-
-        /*
-        for(let i = 0; i < 100; i++){
-            this.scene.UI.update();
-            // body.update();
-        }
-        */
     }
 
     private drawLine(){

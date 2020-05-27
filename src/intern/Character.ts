@@ -44,6 +44,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
         this.setEnergy(0);
 
         scene.physics.add.overlap(this, scene.cookies, this.handleOverlap, undefined, this);
+        scene.physics.add.overlap(this, scene.enemies, this.handleHit, undefined, this);
 
         body.onWorldBounds = true;
     }
@@ -53,9 +54,16 @@ export default class Character extends Phaser.GameObjects.Sprite {
         this.move(this.scene.paddle.x);
     }
 
+    handleHit(player, enemy)
+    {
+        player.body.setVelocity(200, 200);
+        enemy.handlePlayerHit();
+    }
+
     setEnergy(num){
         this.body.setBounce(.3, .3)
     }
+
 
     handleOverlap(player, cookie){
         this.sceneRef.handleCookieHit(cookie);
@@ -116,7 +124,11 @@ export default class Character extends Phaser.GameObjects.Sprite {
             this.fire.explode(100, this.x, this.y);
             this.alpha = 0;
             setTimeout(()=>{
+                if(this.sceneRef.tries){
+                    this.sceneRef.addChar();
+                }
                 this.fire.remove();
+                this.kill();
             }, 800);
         }, 2000);
     }

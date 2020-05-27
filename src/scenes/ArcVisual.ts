@@ -67,12 +67,12 @@ export default class ArcVisual extends Phaser.Scene{
     public renderArc()
     {
         this.rt.clear();
-        const max = 180;
+        const max = 90;
         // this.body.setVelocity(100, -900);
         this.physics.velocityFromAngle(this.angle * (180 / Math.PI), this.paddle.strength * 10, this.body.velocity);
         // this.physics.velocityFromAngle(this.angle, this.paddle.strength * 10, this.body.velocity);
 
-        for(let i = 0; i < max; i+= 10){
+        for(let i = 0; i < max; i+= 5){
             this.world.update(0, i);
             this.circ.alpha = ((max - i) / max);
             this.rt.draw(this.circ);
