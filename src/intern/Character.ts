@@ -45,6 +45,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
 
         scene.physics.add.overlap(this, scene.cookies, this.handleOverlap, undefined, this);
         scene.physics.add.overlap(this, scene.enemies, this.handleHit, undefined, this);
+        scene.physics.add.collider(this, scene.walls, this.handleWalls, undefined, this);
 
         body.onWorldBounds = true;
     }

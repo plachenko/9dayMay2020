@@ -8,6 +8,7 @@ export default class ArcVisual extends Phaser.Scene{
     private world: Phaser.Physics.Arcade.World;
     public angle = 0;
     public paddle;
+    public mainRef;
 
     constructor(){
         super('arc-viz');
@@ -15,6 +16,7 @@ export default class ArcVisual extends Phaser.Scene{
 
     create()
     {
+        console.log(this.scene.manager.game.scene.scenes.main);
         this.world = this.physics.world;
         this.world.checkCollision.up = false;
         this.world.checkCollision.down = false;
@@ -37,14 +39,7 @@ export default class ArcVisual extends Phaser.Scene{
             .off('update', this.world.update, this.world)
             .off('postupdate', this.world.postupdate, this.world)
 
-            /*
-        for(let i = 0; i < 100; i++){
-            this.world.update(0, i);
-            this.rt.draw(this.circ);
-            this.world.postUpdate();
-        }
-        */
-        // this.render();
+        // this.physics.add.collider(this, this,);
     }
 
     setPos(){
@@ -53,24 +48,13 @@ export default class ArcVisual extends Phaser.Scene{
     }
 
     update(){
-        // console.log(this.angle);
-        // this.circ.x += 1;
-        // console.log(this.angle);
-        /*
-        if(this.angle !== this.paddle.shootAngle){
-            this.angle = this.paddle.shootAngle;
-        }
-        this.renderArc();
-        */
     }
 
     public renderArc()
     {
         this.rt.clear();
         const max = 90;
-        // this.body.setVelocity(100, -900);
         this.physics.velocityFromAngle(this.angle * (180 / Math.PI), this.paddle.strength * 10, this.body.velocity);
-        // this.physics.velocityFromAngle(this.angle, this.paddle.strength * 10, this.body.velocity);
 
         for(let i = 0; i < max; i+= 5){
             this.world.update(0, i);

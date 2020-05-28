@@ -5,6 +5,7 @@ import Character from '~/intern/Character';
 import Cookie from '~/intern/Cookie';
 import Paddle from '~/intern/Paddle';
 import Enemy from '~/intern/Enemy';
+import Wall from '~/intern/Wall';
 
 export default class MainGame extends BaseScene
 {
@@ -22,6 +23,7 @@ export default class MainGame extends BaseScene
     private bMouseMove: boolean;
     private xMove: number;
     private enemies: Enemy[] = [];
+    private walls: Wall[] = [];
 
     private gfx: any;
 
@@ -46,6 +48,8 @@ export default class MainGame extends BaseScene
         this.UI.timerInt = this.timerInt;
         this.UI.scoreInt = this.score;
         this.UI.triesInt = this.tries;
+        this.enemies = [];
+        this.walls = [];
     }
 
     create()
@@ -64,13 +68,17 @@ export default class MainGame extends BaseScene
 
         this.scene.run('ui');
 
-        const en = new Enemy(this);
-        this.enemies.push(en);
+        // const en = new Enemy(this);
+        // this.enemies.push(en);
+
 
         this.player = new Character(this, 49);
         this.paddle = new Paddle(this, 104);
 
         this.spawnCookies(10);
+
+        this.walls.push(new Wall(this, 90, 120, 10));
+        this.walls.push(new Wall(this, 250, 120));
 
         this.physics.world.on('worldbounds', this.handleWorldCollide, this);
         this.physics.world.checkCollision.up = false;
@@ -88,6 +96,11 @@ export default class MainGame extends BaseScene
 
     addChar(){
         this.player = new Character(this);
+        setTimeout(() => {
+            this.walls.forEach(wall => {
+                wall.update();
+            });
+        }, 500);
     }
 
     update(time)
