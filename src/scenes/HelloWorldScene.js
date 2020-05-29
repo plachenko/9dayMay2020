@@ -19,6 +19,8 @@ export default class HelloWorldScene extends Phaser.Scene
     create()
     {
         this.add.image(400, 300, 'sky')
+        // this.matter.world.setBounds(0, 0, 800, 600, 32, true, true, false, true);
+        this.matter.world.setBounds()
 
         const particles = this.add.particles('red')
 
@@ -28,11 +30,25 @@ export default class HelloWorldScene extends Phaser.Scene
             blendMode: 'ADD'
         })
 
-        const logo = this.physics.add.image(400, 100, 'logo')
+        /*
+        this.tweens.add({
+          targets: emitter,
+          x: 100,
+          // speed: 100,
+          ease: 'Sine.easeInOut',
+          duration: 1000,
+          repeat: -1,
+          yoyo: true
+        });
+        */
 
-        logo.setVelocity(100, 200)
-        logo.setBounce(1, 1)
-        logo.setCollideWorldBounds(true)
+        this.matter.add.mouseSpring();
+
+        const logo = this.matter.add.image(200, 10, 'logo');
+        logo.setCircle()
+        logo.setScale(.4);
+        logo.setBounce(1);
+        logo.setMass(900);
 
         emitter.startFollow(logo)
     }
