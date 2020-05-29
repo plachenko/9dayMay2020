@@ -4,8 +4,10 @@
 	"description": "A template project for Phaser3 using Parceljs",
 	"scripts": {
 		"start": "parcel src/index.html -p 8000",
-		"build": "parcel build src/index.html --out-dir dist",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"build": "parcel build src/index.html --out-dir dist --public-url ./",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"deploy": "gh-pages -d dist",
+		"bnd": "npm run build && npm run deploy"
 	},
 	"author": "supertommy",
 	"license": "MIT",
