@@ -25,6 +25,8 @@ export default class MainGame extends BaseScene
     private enemies: Enemy[] = [];
     private walls: Wall[] = [];
 
+    private circs = [];
+
     private gfx: any;
 
     private tries;
@@ -59,6 +61,16 @@ export default class MainGame extends BaseScene
         this.dim.w = this.game.config.width;
         this.dim.h = this.game.config.height;
 
+        const img = this.add.image(0, 0,'sky');
+        img.setScale(2);
+        
+
+        const circ1 = this.add.circle(0, 0, 10, 0x00FF00);
+        circ1.alpha = 0;
+        const circ2 = this.add.circle(this.dim.w/2 - 5, this.dim.h/2 - 5, 10, 0xFF0000);
+        circ2.alpha = 0;
+        this.circs = [circ1, circ2];
+
         this.timer = this.time.addEvent({
             delay: 1000, 
             loop: true, 
@@ -72,13 +84,13 @@ export default class MainGame extends BaseScene
         // this.enemies.push(en);
 
 
-        this.player = new Character(this, 49);
+        this.addChar(49);
         this.paddle = new Paddle(this, 104);
 
         this.spawnCookies(10);
 
-        this.walls.push(new Wall(this, 90, 120, 10));
-        this.walls.push(new Wall(this, 250, 120));
+        // this.walls.push(new Wall(this, 90, 120, 10));
+        // this.walls.push(new Wall(this, 250, 120));
 
         this.physics.world.on('worldbounds', this.handleWorldCollide, this);
         this.physics.world.checkCollision.up = false;
@@ -94,8 +106,10 @@ export default class MainGame extends BaseScene
         this.cameras.main.setTint(0x00FF00);
     }
 
-    addChar(){
-        this.player = new Character(this);
+    addChar(idx = null){
+        if(!this.bGameOver){
+            this.player = new Character(this, idx);
+        }
         setTimeout(() => {
             this.walls.forEach(wall => {
                 wall.update();
@@ -153,6 +167,7 @@ export default class MainGame extends BaseScene
 
         this.input.on('pointerup', (pointer) => {
             if(this.input.mouse.locked){
+                this.circs.forEach(circ => circ.alpha = 0);
                 this.bMouseMove = true;
                 paddle.bAiming = false;
                 paddle.shoot();
@@ -165,6 +180,14 @@ export default class MainGame extends BaseScene
 
         this.input.on('pointerdown', (pointer)=> {
             if(this.input.mouse.locked){
+                this.circs.forEach(circ => {
+                    circ.alpha = 1;
+                    // circ.x = this.dim.w/2 - 5; 
+                    // circ.y = this.dim.h/2 - 5;
+                    circ.x = this.paddle.x; 
+                    circ.y = this.paddle.y - 20;
+                });
+
                 this.bMouseMove = false;
                 paddle.strength = 0;
                 paddle.bAiming = true;
@@ -177,8 +200,25 @@ export default class MainGame extends BaseScene
                     this.xMove = pointer.movementX;
                     paddle.bMoving = true;
                 }else{
-                    paddle.showArcScene();
-                    paddle.setShootAngle(pointer.movementX);
+                    if(!this.bGameOver){
+                        const dist = Phaser.Math.Distance.BetweenPoints(this.circs[0], this.circs[1]);
+                        if(dist < 100){
+                            this.paddle.strength = dist;
+                        }
+                        if(this.circs[1].y <= paddle.y){
+                            this.circs[1].x += pointer.movementX;
+                            this.circs[1].y += pointer.movementY;
+                            this.paddle.shootTo = this.circs[1];
+                        }else{
+                            // this.circs[1].x = ;
+                            this.circs[1].y = paddle.y;
+                        }
+                        paddle.showArcScene();
+                        paddle.setShootAngle(pointer.movementX);
+
+                    } else {
+                        
+                    }
                 } 
             }
         });
@@ -239,8 +279,8 @@ export default class MainGame extends BaseScene
                 this.changeScene('game-over', this.score);
             }
         });
-        this.scene.stop('ui');
         this.scene.stop('arc-viz');
+        this.scene.stop('ui');
         this.bGameOver = true;
     }
 }

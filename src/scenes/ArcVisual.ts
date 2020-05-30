@@ -16,7 +16,6 @@ export default class ArcVisual extends Phaser.Scene{
 
     create()
     {
-        console.log(this.scene.manager.game.scene.scenes.main);
         this.world = this.physics.world;
         this.world.checkCollision.up = false;
         this.world.checkCollision.down = false;

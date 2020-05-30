@@ -4,7 +4,7 @@ import ArcVisual from '~/scenes/ArcVisual';
 
 export default class Paddle extends Phaser.GameObjects.Rectangle {
     body: Phaser.Physics.Arcade.StaticBody;
-    private shootTo = {x: 0, y: 0};
+    public shootTo = {x: 0, y: 0};
     private itemsTouching: any = [];
     public shootAngle = 0;
     private gfx: any;
@@ -47,9 +47,11 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
         if(this.bAiming){
             if(this.energy > 0){
                 this.energy--;
+                /*
                 if(this.strength <= this.maxStrength){
                     this.strength+= 3;
                 }
+                */
                 this.showArcScene();
             } else {
                 this.scene.physics.world.timeScale = 1;
@@ -87,7 +89,7 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
         if(this.energy){
             this.scene.physics.world.timeScale = 20;
 
-            this.shootTo.x += xAmt;
+            // this.shootTo.x += xAmt;
 
         }
         this.shootAngle = Phaser.Math.Angle.BetweenPoints(this, this.shootTo);
@@ -105,7 +107,7 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
     }
 
     public shoot(){
-        this.shootTo.x = this.x;
+        // this.shootTo.x = this.x;
         this.scene.physics.world.timeScale = 1;
 
         this.sceneRef.scene.sleep('arc-viz');
@@ -162,7 +164,7 @@ export default class Paddle extends Phaser.GameObjects.Rectangle {
         }
 
         this.body.updateFromGameObject();
-        this.shootTo.x = paddle.x;
+        // this.shootTo.x = paddle.x;
     }
 
 }
